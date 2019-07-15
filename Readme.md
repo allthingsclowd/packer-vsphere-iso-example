@@ -1,4 +1,6 @@
-# Example Packer configuration files for building Ubuntu 18.04 Server Image for VMware ESXi 6.7 platform
+# Example Packer configuration files for building Ubuntu 18.04 Server Image for VMware ESXi 6.7 platform (includes testing)
+
+![image](https://user-images.githubusercontent.com/9472095/61236481-05dab980-a730-11e9-985c-e32c1b70841b.png)
 
 All examples were run on a MacOS laptop
 
