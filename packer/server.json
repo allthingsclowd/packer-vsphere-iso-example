@@ -1,0 +1,131 @@
+{
+    "builders": [
+      {
+        "type": "vsphere-iso",
+  
+        "vcenter_server":      "{{user `vcenter_server`}}",
+        "username":            "{{user `username`}}",
+        "password":            "{{user `password`}}",
+        "insecure_connection": "true",
+  
+        "vm_name": "ubuntu18_server_no_rdp",
+        "datastore": "{{user `datastore`}}",
+        "folder": "{{user `folder`}}",
+        "host":     "{{user `host`}}",
+        "convert_to_template": "true",
+        "cluster": "{{user `cluster`}}",
+        "network": "{{user `network`}}",
+        "resource_pool": "{{user `resource_pool`}}",
+        "boot_order": "disk,cdrom",
+  
+        "guest_os_type": "ubuntu64Guest",
+  
+        "ssh_username": "{{user `ssh_username`}}",
+        "ssh_password": "{{user `ssh_password`}}",
+  
+        "CPUs":             2,
+        "RAM":              2048,
+        "RAM_reserve_all": true,
+  
+        "disk_controller_type":  "pvscsi",
+        "disk_size":        10737,
+        "disk_thin_provisioned": true,
+  
+        "network_card": "vmxnet3",
+  
+        "iso_urls": "http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-amd64.iso",
+        "iso_checksum": "a2cb36dc010d98ad9253ea5ad5a07fd6b409e3412c48f1860536970b073c98f5",
+        "iso_checksum_type": "sha256",
+
+        "floppy_files": [
+          "./http/preseed_server.cfg"
+        ],
+        "boot_command": [
+          "<enter><wait><f6><wait><esc><wait>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs>",
+          "/install/vmlinuz",
+          " initrd=/install/initrd.gz",
+          " priority=critical",
+          " locale=en_US",
+          " file=/media/preseed_server.cfg",
+          "<enter>"
+        ]
+      }
+    ],
+  
+    "provisioners": [
+      {
+        "type": "shell",
+        "inline": ["echo 'template build - starting configuration by deploying base packages/applications'"]
+      },
+      {
+        "execute_command": "echo '{{user `password`}}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+        "scripts": [
+          "scripts/packer_install_base_packages.sh",
+          "scripts/packer_image_cleanup.sh"
+        ],
+        "type": "shell",
+        "expect_disconnect": true,
+        "pause_before": "10s"
+      },
+      {
+        "type": "shell",
+        "inline": ["echo 'template build - start configuring ssh access'"]
+      },
+      {
+        "type": "shell",
+        "inline": [
+          "mkdir -p {{user `image_home_dir`}}{{user `ssh_username`}}/.ssh"
+        ]
+      },
+      {
+        "type": "file",
+        "source": "{{user `ssh_key_src_pub`}}",
+        "destination": "{{user `image_home_dir`}}{{user `ssh_username`}}/.ssh/authorized_keys"
+      },
+      {
+        "type": "shell",
+        "inline": [
+          "sudo chown -R {{user `ssh_username`}}:{{user `ssh_username`}} {{user `image_home_dir`}}{{user `ssh_username`}}",
+          "sudo chmod go-w {{user `image_home_dir`}}{{user `ssh_username`}}/",
+          "sudo chmod 700 {{user `image_home_dir`}}{{user `ssh_username`}}/.ssh",
+          "sudo chmod 600 {{user `image_home_dir`}}{{user `ssh_username`}}/.ssh/authorized_keys"
+          ]
+      },
+      {
+        "type": "shell",
+        "inline": ["echo 'template build - test the image'"]
+      },
+      {
+        "type": "inspec",
+        "profile": "test/ImageBuild"
+      },
+      {
+        "type": "shell",
+        "inline": ["echo 'template build - disable ssh password access'"]
+      },
+      {
+        "type": "shell",
+        "inline": [
+          "sudo su root -c \"sed '/ChallengeResponseAuthentication/d' -i /etc/ssh/sshd_config | sudo bash\"",
+          "sudo su root -c \"sed '/PasswordAuthentication/d' -i /etc/ssh/sshd_config | sudo bash\"",
+          "sudo su root -c \"sed '/UsePAM/d' -i /etc/ssh/sshd_config | sudo bash\"",
+          "sudo su root -c \"echo  >> /etc/ssh/sshd_config | sudo bash\"",
+          "sudo su root -c \"echo 'ChallengeResponseAuthentication no' >> /etc/ssh/sshd_config | sudo bash\"",
+          "sudo su root -c \"echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config | sudo bash\""
+        ]
+      },
+      {
+        "type": "shell",
+        "inline": ["echo 'template build - complete'"]
+      }
+    ]
+  }

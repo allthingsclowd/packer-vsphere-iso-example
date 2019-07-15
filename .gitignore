@@ -1,0 +1,7 @@
+.variables
+.DS_Store
+packer/packer_1.3.5_darwin_amd64.zip
+packer/packer-builder-vsphere-iso
+packer/packer_cache
+packer/id_rsa.pub
+packer/packer

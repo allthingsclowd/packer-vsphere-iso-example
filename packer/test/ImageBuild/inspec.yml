@@ -1,0 +1,10 @@
+name: ImageBuild
+title: InSpec Profile
+maintainer: Graham Land
+copyright: Graham Land
+copyright_email: graham@allthingscloud.eu
+license: Apache-2.0
+summary: An InSpec Compliance Profile
+version: 0.0.1
+supports:
+  platform: os
