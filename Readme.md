@@ -1,4 +1,4 @@
-# Example Packer configuration files for building Ubuntu 18.04 Desktop & Server Images for ESXi 6.7 platform
+# Example Packer configuration files for building Ubuntu 18.04 Server Image for VMware ESXi 6.7 platform
 
 All examples were run on a MacOS laptop
 
@@ -13,7 +13,7 @@ Packer version 1.3.5 was used as the brew install of Packer at the time of writi
 
 This is the error I keep getting when using Packer 1.4.0 - 1.4.2 :
 
-``` bash
+``` text
 ==> vsphere-iso: Retrieving ISO
     vsphere-iso: Error downloading: open : no such file or directory
 ==> vsphere-iso: ISO download failed.
