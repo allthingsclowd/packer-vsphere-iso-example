@@ -82,4 +82,3 @@ chmod +x packer-builder-vsphere-iso
 ``` bash
 ./packer build -force -var-file=../.variables server.json
 ```
-
