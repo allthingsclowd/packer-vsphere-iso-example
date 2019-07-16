@@ -82,3 +82,5 @@ chmod +x packer-builder-vsphere-iso
 ``` bash
 ./packer build -force -var-file=../.variables server.json
 ```
+
+Add this just to test github triggers
